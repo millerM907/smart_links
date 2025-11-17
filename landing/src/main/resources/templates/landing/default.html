@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Default landing</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .card { border: 1px solid #ddd; padding: 24px; border-radius: 8px; max-width: 560px; }
+        .badge { display: inline-block; background: #eef; padding: 4px 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>Default landing:
+        <span class="badge" th:text="${page}">default</span>
+    </h2>
+    <p>This is a global fallback landing page.</p>
+</div>
+</body>
+</html>
