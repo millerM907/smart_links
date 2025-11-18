@@ -1,20 +1,101 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Default landing</title>
+    <meta charset="UTF-8">
+    <title>11.11 FinTech Offer – Default Landing</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .card { border: 1px solid #ddd; padding: 24px; border-radius: 8px; max-width: 560px; }
-        .badge { display: inline-block; background: #eef; padding: 4px 10px; border-radius: 6px; }
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #0f172a;
+            color: #f9fafb;
+        }
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 32px 24px 40px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.7);
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 18px;
+        }
+        .btn {
+            padding: 10px 18px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #022c22;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .grid {
+            margin-top: 26px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+        .box {
+            background: #020617;
+            border-radius: 14px;
+            border: 1px solid rgba(148,163,184,0.5);
+            padding: 14px 12px;
+            font-size: 13px;
+        }
+        .box-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+        .footer-note {
+            margin-top: 24px;
+            font-size: 11px;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
-<div class="card">
-    <h2>Default landing:
-        <span class="badge" th:text="${page}">default</span>
-    </h2>
-    <p>This is a global fallback landing page.</p>
+<div class="page">
+    <span class="badge">Default 11.11 FinTech landing (EN · desktop)</span>
+    <h1 class="title">One card for all your 11.11 payments</h1>
+    <p class="subtitle">
+        If no specific targeting rule was matched, you see this default 11.11 landing.
+        Open a digital card, pay online and collect increased cashback for eligible purchases.
+    </p>
+    <button class="btn">Open a digital card</button>
+
+    <section class="grid">
+        <div class="box">
+            <div class="box-title">Cashback</div>
+            <p>Base 3–5% cashback for online purchases, up to 11% for selected categories on 11.11.</p>
+        </div>
+        <div class="box">
+            <div class="box-title">Fees</div>
+            <p>No monthly fee and no FX markup during the 11.11 promo day for supported currencies.</p>
+        </div>
+        <div class="box">
+            <div class="box-title">Controls</div>
+            <p>Freeze card, set limits, create virtual cards for subscriptions in one place.</p>
+        </div>
+    </section>
+
+    <p class="footer-note">
+        This default page is used when no specific rule in the rules engine matches the current user context.
+        It is safe to use it in the demo as a fallback for any unexpected slug or attribute combination.
+    </p>
 </div>
 </body>
 </html>
