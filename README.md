@@ -40,3 +40,29 @@ smart-links/
     pom.xml
     src/...
     README.md
+```
+
+## Сборка и запуск в Docker
+
+### Предусловия
+
+- Установлен Docker / Docker Desktop
+- Установлен Docker Compose (в Docker Desktop уже встроен)
+- Порты `8080`, `8081`, `8082` свободны
+
+### Шаги запуска
+
+Открыть терминал (PowerShell / bash) и выполнить:
+
+```bash
+# 1. Перейти в корень проекта (где лежит общий pom.xml и docker-compose.yml)
+cd /path/to/project/root
+
+# 2. Собрать все три микросервиса и их JAR-файлы
+mvn clean package
+
+# 3. Собрать Docker-образы для edge, rules и landing
+docker compose build
+
+# 4. Запустить все микросервисы в Docker (в foreground)
+docker compose up
