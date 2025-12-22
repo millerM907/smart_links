@@ -1,79 +1,105 @@
 # Smart Links — Rules Service
 
-## Архитектура
+## Overview
+
+The **Rules** service resolves a `slug` and a user **attribute map** into a target landing URL, based on a custom **YAML DSL**.
+
+The Edge service calls `POST /resolve`, passing a `slug` plus request-derived attributes. Rules loads rule definitions from `rules.yaml`, compiles them into an executable representation, caches compiled rule sets by `(slug, configVersion)`, and then evaluates them to produce a `Resolution`.
+
+## Architecture
 
 ![Rules Component Diagram](../docs/diagrams/rules-service.png)
 
-Rules Service отвечает за выбор целевого landing-URL на основе YAML-DSL и контекста пользователя.  
-Edge-сервис вызывает `POST /resolve`, передавая `slug` и карту атрибутов. Rules Service загружает правила из `rules.yaml`, компилирует их в исполняемое представление, кэширует наборы правил по slug и версии конфигурации, а затем вычисляет `Resolution`.
+## Core components
 
-Основные компоненты:
-- **ResolveController** — REST-контроллер `POST /resolve`, принимает `ResolveRequest` и возвращает `Resolution` в JSON.
-- **ResolveService (ResolveUseCase)** — оркестрирует загрузку, компиляцию, версионный кэш и выполнение правил.
-- **RuleSetRepository (InMemoryRuleSetRepository)** — in-memory хранилище `RuleSet` по slug, с поддержкой версии конфигурации.
-- **DslLoader (ClasspathYamlLoader)** — загружает и парсит YAML-конфиг (`rules.yaml`) в DSL-модель (`DslRoot`, `RuleSet`, `RuleDef`, `CondDef`, `ThenDef`).
-- **RuleCompiler (DefaultRuleCompiler)** — компилирует DSL-условия в исполняемые предикаты и действия.
-- **OperatorRegistry & Operators (eq, in, between, regex)** — реестр операторов и их реализации.
-- **Accessor (DottedPathAccessor)** — читает значения из контекста по “точечным” путям (`browser`, `device`, `geo.country`).
-- **RuleEvaluator (DefaultRuleEvaluator)** — применяет скомпилированные правила по приоритету и возвращает первое сработавшее либо fallback-URL.
-- **ErrorHandler** — маппит доменные исключения в HTTP-ошибки (`400` и `500`).
+- **ResolveController** — `POST /resolve` REST controller; accepts a `ResolveRequest` and returns a `Resolution` as JSON.
+- **ResolveService (ResolveUseCase)** — orchestrates rule set loading, compilation, versioned caching, and rule evaluation.
+- **RuleSetRepository (InMemoryRuleSetRepository)** — in-memory storage for `RuleSet` objects by slug, with config version support.
+- **DslLoader (ClasspathYamlLoader)** — loads and parses `rules.yaml` into the DSL model (`DslRoot`, `RuleSet`, `RuleDef`, `CondDef`, `ThenDef`).
+- **RuleCompiler (DefaultRuleCompiler)** — compiles DSL conditions into executable predicates and actions.
+- **OperatorRegistry & Operators (`eq`, `in`, `between`, `regex`)** — operator registry and implementations.
+- **Accessor (DottedPathAccessor)** — reads values from the context using “dotted” paths (e.g., `browser`, `device`, `geo.country`).
+- **RuleEvaluator (DefaultRuleEvaluator)** — evaluates compiled rules in priority order; returns the first match or the fallback (default) URL.
+- **ErrorHandler** — maps domain exceptions to HTTP errors (`400` and `500`).
 
-## Кастомный DSL
+## Custom YAML DSL
 
-Rules Service использует **кастомный YAML-DSL** для описания правил без изменения Java-кода.
+Rules uses a custom **YAML DSL** so routing logic can be changed without modifying Java code.
 
-Каждый `slug` в `rules.yaml` определяет:
-- `defaultUrl` — URL по умолчанию,
-- `rules[]` — набор правил:
-  - `priority` — приоритет,
-  - `when` — логическое условие (`all`, `any`, `not`, предикаты),
-  - `then` — действие (`url`, `ttl`, `reason`).
+Each `slug` entry in `rules.yaml` defines:
 
-Условия строятся из:
-- логических комбинаций: `all`, `any`, `not`,
-- предикатов: `{ path, operator, value }`,
-- операторов: `eq`, `in`, `between` (по времени), `regex`.
+- `defaultUrl` — fallback URL if no rules match.
+- `rules[]` — a list of rules:
+  - `priority` — evaluation priority (higher wins / evaluated first).
+  - `when` — a logical condition (`all`, `any`, `not`, predicates).
+  - `then` — an action (`url`, optional `ttl`, optional `reason`).
 
-## Паттерны проектирования
+Conditions are built from:
 
-- **Composite / Specification для условий**  
-  - Иерархия `CondDef` (`AllDef`, `AnyDef`, `NotDef`, `PredDef`) описывает дерево логических условий.  
-  - `DefaultRuleCompiler` превращает это дерево в набор исполняемых `Condition`.  
-  - Это реализует **Composite/Specification**: сложные правила строятся из простых без изменения ядра.
+- logical combinators: `all`, `any`, `not`
+- predicates: `{ path, operator, value }`
+- operators: `eq`, `in`, `between` (time-based), `regex`
 
-- **Strategy для операторов**  
-  - Интерфейс `Operator` и реализации `EqOperator`, `InOperator`, `BetweenTimeOperator`, `RegexOperator` инкапсулируют разные способы сравнения.  
-  - `DefaultOperatorRegistry` получает список операторов через DI и регистрирует их по имени.  
-  - Добавление нового оператора не требует изменения компилятора (**OCP**, **DIP**).
+### DSL skeleton (illustrative)
 
-- **Repository для наборов правил**  
-  - `RuleSetRepository` абстрагирует источник конфигурации от бизнес-логики.  
-  - `InMemoryRuleSetRepository` можно заменить на реализацию для БД или config-сервиса, не меняя `ResolveService`.
+```yaml
+some-slug:
+  defaultUrl: "https://example.com/default"
+  rules:
+    - priority: 100
+      when:
+        all:
+          - path: "device"
+            operator: "eq"
+            value: "mobile"
+          - path: "geo.country"
+            operator: "in"
+            value: ["NL", "BE"]
+      then:
+        url: "https://example.com/mobile-nl"
+        ttl: 60
+        reason: "Mobile users in NL/BE"
+```
 
-- **Factory-стиль компиляции**  
-  - `RuleCompiler` выступает фабрикой: из `RuleSet` делает `CompiledRuleSet` — неизменяемую структуру, готовую к исполнению.  
-  - Разделяются “описание” и “исполнение”, улучшается тестопригодность.
+## Design notes (patterns & SOLID)
 
-- **Версионный кэш**  
-  - `ResolveService` кэширует скомпилированные наборы правил по паре (slug, version).  
-  - При обновлении конфигурации изменяется версия и кэш автоматически инвалидируется, соблюдая **SRP** и **OCP**.
+- **Composite / Specification for conditions**
+  - `CondDef` hierarchy (`AllDef`, `AnyDef`, `NotDef`, `PredDef`) represents a logical condition tree.
+  - `DefaultRuleCompiler` turns that tree into executable `Condition` instances.
+  - Complex rules can be composed from simple ones without changing the core.
 
-## Технологии
+- **Strategy for operators**
+  - `Operator` plus implementations (`EqOperator`, `InOperator`, `BetweenTimeOperator`, `RegexOperator`) encapsulate different comparison approaches.
+  - `DefaultOperatorRegistry` receives operators via dependency injection and registers them by name.
+  - Adding a new operator does not require changes to the compiler (**OCP**, **DIP**).
 
-Rules Service использует:
+- **Repository for rule sets**
+  - `RuleSetRepository` abstracts where configuration comes from.
+  - `InMemoryRuleSetRepository` can be replaced with a DB-backed or config-service-backed implementation without rewriting `ResolveService`.
 
-- **Java 17**  
-- **Spring Boot 3 (Web)** — Spring MVC / REST  
-- **Spring Validation** — валидация входных DTO (при необходимости)  
-- **SnakeYAML, Jackson Dataformat YAML** — парсинг YAML и маппинг в объекты  
-- **Spring Boot Test, JUnit 5, Mockito** — тестирование контроллеров и доменной логики  
-- **JaCoCo** — анализ покрытия тестами с порогом в %
-- **Maven** — сборка и зависимости
+- **Factory-style compilation**
+  - `RuleCompiler` acts like a factory: converts a `RuleSet` into an immutable `CompiledRuleSet` ready for evaluation.
+  - Separating “definition” from “execution” improves testability and keeps responsibilities clear.
 
-## Как запустить сервис
+- **Versioned cache**
+  - `ResolveService` caches compiled rule sets by `(slug, version)`.
+  - When the configuration changes, the version changes and cached entries are naturally invalidated (**SRP**, **OCP**).
 
-Требования: JDK 17, Maven.
+## Tech stack
+
+- **Java 17**
+- **Spring Boot 3 (Web)** — Spring MVC / REST
+- **Spring Validation** — request DTO validation (when enabled)
+- **SnakeYAML, Jackson Dataformat YAML** — YAML parsing and object mapping
+- **Spring Boot Test, JUnit 5, Mockito** — controller and domain tests
+- **JaCoCo** — test coverage analysis (threshold enforced via build config)
+- **Maven** — build and dependency management
+
+## Build and run
+
+Requirements: **JDK 17** and **Maven**.
 
 ```bash
 mvn clean package
 mvn spring-boot:run
+```

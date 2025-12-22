@@ -1,52 +1,63 @@
 # Smart Links — Landing Service
 
-## Архитектура
+## Overview
+
+The **Landing** service is responsible for serving HTML pages for resolved links.
+
+After the **Edge** redirector and the **Rules** service determine the final destination, the user is redirected to
+`/landing/{slug}`. The controller delegates to the service layer, which resolves the template name and prepares a view
+model. Spring MVC’s view engine then renders the final HTML page.
+
+## Architecture
 
 ![Landing Component Diagram](../docs/diagrams/landing-service.png)
 
-Landing Service отвечает за отдачу HTML-страниц по разрешённым ссылкам.  
-После того как Edge Redirector и Rules Service определили целевой URL, пользователь попадает на `/landing/{slug}`. Контроллер вызывает сервис, который определяет имя шаблона и подготавливает модель, а Spring MVC View Engine рендерит HTML-страницу.
+## Key components
 
-Основные компоненты:
-- **LandingController** — обрабатывает `GET /landing/{slug}`, вызывает `LandingService`, наполняет `Model` и возвращает имя шаблона.
-- **LandingService / DefaultLandingService** — бизнес-логика выбора шаблона и подготовки `LandingView` (имя шаблона + модель).
-- **LandingPageResolver / ConfigLandingPageResolver** — резолвит slug в конкретный шаблон с fallback на значение по умолчанию.
-- **LandingProperties** — связывает настройки из `application.yml` (карта slug → template + default template) с Java-классом.
-- **LandingView** — DTO с `templateName` и набором атрибутов модели.
+- **LandingController** — handles `GET /landing/{slug}`, calls `LandingService`, populates the Spring `Model`, and returns
+  the view (template) name.
+- **LandingService / DefaultLandingService** — business logic for selecting a template and preparing a `LandingView`
+  (template name + model attributes).
+- **LandingPageResolver / ConfigLandingPageResolver** — resolves a slug into a concrete template, with a fallback to the
+  default template.
+- **LandingProperties** — binds configuration from `application.yml` (map: `slug → template` + default template) into a
+  strongly-typed Java configuration class.
+- **LandingView** — a DTO containing `templateName` and a set of model attributes.
 
-## Паттерны проектирования и SOLID
+## Design notes (patterns & SOLID)
 
-- **Strategy для выбора лендинга**  
-  - `LandingPageResolver` — интерфейс, `ConfigLandingPageResolver` — реализация на основе конфигурации.  
-  - Для более сложной логики (A/B-тесты, персонализация) можно внедрить другую стратегию, не трогая контроллер и сервис (**DIP**, **OCP**).
+- **Strategy for landing selection**
+  - `LandingPageResolver` is an interface; `ConfigLandingPageResolver` is the configuration-based implementation.
+  - For more advanced scenarios (A/B testing, personalization), you can provide a different resolver implementation
+    without changing the controller or service (**DIP**, **OCP**).
 
-- **Service + ViewModel (LandingView)**  
-  - `DefaultLandingService` решает, какой шаблон взять и какие данные передать представлению.  
-  - `LandingView` выступает моделью представления: контроллер только перекладывает атрибуты в `Model` и возвращает имя вида.  
-  - Это поддерживает **SRP** и упрощает модульное тестирование.
+- **Service + ViewModel (`LandingView`)**
+  - `DefaultLandingService` determines which template to use and which data to pass to the view.
+  - `LandingView` acts as a view model: the controller only copies attributes into the Spring `Model` and returns the
+    view name.
+  - This keeps responsibilities clear (**SRP**) and makes unit testing easier.
 
-- **Configuration as Data**  
-  - `LandingProperties` загружает slug → template из `application.yml`.  
-  - Чтобы добавить новый лендинг, достаточно:
-    1. создать HTML-шаблон в `templates/landing/`,
-    2. добавить правило сопоставления slug → template в конфиг.  
-  - Поведение расширяется данными, а не изменениями кода (**OCP**).
+- **Configuration as data**
+  - `LandingProperties` loads the `slug → template` mapping from `application.yml`.
+  - To add a new landing page, you typically only need to:
+    1. create an HTML template under `templates/landing/`,
+    2. add a `slug → template` mapping in the configuration.
+  - Behavior is extended by data, not code changes (**OCP**).
 
-## Технологии
+## Tech stack
 
-Landing Service использует:
+- **Java 17**
+- **Spring Boot 3 (Web)** — Spring MVC and server-side templating
+- **Spring Boot configuration properties** — binds `application.yml` into `LandingProperties`
+- **Spring Boot Test, JUnit 5, Mockito** — unit testing
+- **JaCoCo** — test coverage reports
+- **Maven** — build and dependency management
 
-- **Java 17**  
-- **Spring Boot 3 (Web)** — Spring MVC и шаблонизация  
-- **Spring Boot configuration properties** — биндинг `application.yml` в `LandingProperties`  
-- **Spring Boot Test, JUnit 5, Mockito** — модульное тестирование  
-- **JaCoCo** — отчёт по покрытию тестами  
-- **Maven** — сборка и зависимости
+## Build and run
 
-## Как запустить сервис
-
-Требования: JDK 17, Maven.
+Requirements: **JDK 17** and **Maven**.
 
 ```bash
 mvn clean package
 mvn spring-boot:run
+```
