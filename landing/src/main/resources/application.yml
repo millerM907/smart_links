@@ -1,0 +1,17 @@
+server:
+  port: 8082
+  error:
+    include-message: always
+
+spring:
+  thymeleaf:
+    cache: false
+
+landing:
+  default-template: "landing/default"
+  template-mappings:
+    ru-desktop-firefox: "landing/ru-desktop-firefox"
+    en-mobile-firefox: "landing/en-mobile-firefox"
+    ru-mobile-chrome: "landing/ru-mobile-chrome"
+    en-desktop-chrome: "landing/en-desktop-chrome"
+    desktop:             "landing/desktop"

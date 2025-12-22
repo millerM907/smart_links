@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>Landing</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 40px; }
+      .card { border: 1px solid #ddd; padding: 24px; border-radius: 8px; max-width: 560px; }
+      .badge { display: inline-block; background: #eef; padding: 4px 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Landing: <span class="badge" th:text="${page}">default</span></h2>
+    <p>Это заглушка целевой страницы для демонстрации результата редиректа.</p>
+    <p>Попробуйте поменять параметры запроса (demoDevice, demoBrowser, demoTime).</p>
+  </div>
+</body>
+</html>

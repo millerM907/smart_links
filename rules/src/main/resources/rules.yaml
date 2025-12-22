@@ -1,0 +1,54 @@
+links:
+  - slug: sale1111
+    defaultUrl: "http://localhost:8082/landing/default"
+    rules:
+      - id: R_COMBO_1
+        priority: 100
+        when:
+          all:
+            - { path: "time", operator: "between", value: "00:00-23:59" }
+            - { path: "browser", operator: "eq", value: "Firefox" }
+            - { path: "lang", operator: "eq", value: "ru-RU" }
+            - { path: "device", operator: "in", value: [ "desktop" ] }
+        then:
+          url: "http://localhost:8082/landing/ru-desktop-firefox"
+          ttl: 120
+      - id: R_COMBO_2
+        priority: 200
+        when:
+          all:
+            - { path: "time", operator: "between", value: "00:00-23:59" }
+            - { path: "browser", operator: "eq", value: "Firefox" }
+            - { path: "lang", operator: "eq", value: "en-US" }
+            - { path: "device", operator: "in", value: [ "mobile" ] }
+        then:
+          url: "http://localhost:8082/landing/en-mobile-firefox"
+          ttl: 120
+      - id: R_COMBO_3
+        priority: 300
+        when:
+          all:
+            - { path: "time", operator: "between", value: "00:00-23:59" }
+            - { path: "browser", operator: "eq", value: "Chrome" }
+            - { path: "lang", operator: "eq", value: "ru-RU" }
+            - { path: "device", operator: "in", value: [ "mobile" ] }
+        then:
+          url: "http://localhost:8082/landing/ru-mobile-chrome"
+          ttl: 120
+      - id: R_COMBO_4
+        priority: 400
+        when:
+          all:
+            - { path: "time", operator: "between", value: "00:00-23:59" }
+            - { path: "browser", operator: "eq", value: "Chrome" }
+            - { path: "lang", operator: "eq", value: "en-US" }
+            - { path: "device", operator: "in", value: [ "desktop" ] }
+        then:
+          url: "http://localhost:8082/landing/en-desktop-chrome"
+          ttl: 120
+      - id: R_FALLBACK_DEVICE
+        priority: 50
+        when: { path: "device", operator: "eq", value: "desktop" }
+        then:
+          url: "http://localhost:8082/landing/desktop"
+          ttl: 60

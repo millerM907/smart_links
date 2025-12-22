@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>11.11 Финтех · Мобильный · Chrome</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #020617;
+            color: #e5e7eb;
+        }
+        .page {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px 32px;
+        }
+        .badge-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            font-size: 11px;
+            margin-bottom: 12px;
+        }
+        .badge {
+            padding: 3px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.5);
+        }
+        .hero-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .hero-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 14px;
+        }
+        .hero-pill {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 999px;
+            background: #111827;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .card {
+            margin-top: 14px;
+            background: linear-gradient(135deg, #0f172a, #020617);
+            border-radius: 14px;
+            padding: 16px 14px;
+            border: 1px solid rgba(148,163,184,0.6);
+        }
+        .card-chip {
+            width: 32px;
+            height: 22px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #f97316, #fb923c);
+            margin-bottom: 12px;
+        }
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .card-label { opacity: 0.7; }
+
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 18px 0 8px;
+        }
+        .btn-primary {
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #022c22;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .btn-secondary {
+            padding: 9px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(148,163,184,0.7);
+            background: transparent;
+            color: #e5e7eb;
+            font-size: 13px;
+        }
+
+        .list-section {
+            margin-top: 18px;
+        }
+        .list-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 13px;
+        }
+        .list li {
+            margin-bottom: 6px;
+            display: flex;
+            gap: 8px;
+        }
+        .bullet {
+            width: 5px;
+            height: 5px;
+            border-radius: 999px;
+            background: #22c55e;
+            margin-top: 6px;
+        }
+
+        .footer-note {
+            margin-top: 18px;
+            font-size: 11px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="badge-bar">
+        <div class="badge">Язык: RU</div>
+        <div class="badge">Устройство: Mobile</div>
+        <div class="badge">Браузер: Chrome</div>
+        <div class="badge">Акция: 11.11</div>
+    </div>
+
+    <span class="hero-pill">Мобильный кэшбэк 11.11</span>
+    <h1 class="hero-title">До 11% кэшбэка за платежи со смартфона</h1>
+    <p class="hero-subtitle">
+        Оформите новую цифровую карту и получайте повышенный кэшбэк за все онлайн-покупки,
+        оплаченные с телефона 11.11. Мобильная версия — максимум простоты и быстрых действий.
+    </p>
+
+    <div class="buttons">
+        <button class="btn-primary">Оформить карту онлайн</button>
+        <button class="btn-secondary">Узнать детали акции</button>
+    </div>
+
+    <div class="card">
+        <div class="card-chip"></div>
+        <div class="card-row">
+            <span class="card-label">Держатель</span>
+            <span>МОБИЛЬНЫЙ · CHROME</span>
+        </div>
+        <div class="card-row">
+            <span class="card-label">Лимит 11.11</span>
+            <span>До 100 000 ₽</span>
+        </div>
+        <div class="card-row">
+            <span class="card-label">Кэшбэк</span>
+            <span>11% за финтех-сервисы</span>
+        </div>
+    </div>
+
+    <section class="list-section">
+        <h2 class="list-title">Что видит мобильный клиент</h2>
+        <ul class="list">
+            <li>
+                <span class="bullet"></span>
+                <span>Упрощённый экран: только баланс, кэшбэк и последние транзакции.</span>
+            </li>
+            <li>
+                <span class="bullet"></span>
+                <span>Быстрая оплата по QR и переводы по номеру телефона.</span>
+            </li>
+            <li>
+                <span class="bullet"></span>
+                <span>Push-уведомления о каждом начислении кэшбэка 11.11.</span>
+            </li>
+        </ul>
+    </section>
+
+    <section class="list-section">
+        <h2 class="list-title">Условия акции 11.11</h2>
+        <ul class="list">
+            <li>
+                <span class="bullet"></span>
+                <span>11% кэшбэка за оплату подписок и цифровых сервисов.</span>
+            </li>
+            <li>
+                <span class="bullet"></span>
+                <span>5% за любые онлайн-покупки через мобильный Chrome.</span>
+            </li>
+            <li>
+                <span class="bullet"></span>
+                <span>Никаких комиссий за оплату в валюте в день акции.</span>
+            </li>
+        </ul>
+    </section>
+
+    <p class="footer-note">
+        Эта страница предназначена для мобильных пользователей с русским языком и браузером Chrome.
+        При демонстрации вы должны попадать сюда при контексте RU + mobile + Chrome.
+    </p>
+</div>
+</body>
+</html>

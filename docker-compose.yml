@@ -1,0 +1,26 @@
+services:
+  edge:
+    build: ./edge
+    container_name: smart-links-edge
+    ports:
+      - "8080:8080"
+    environment:
+      # RuleEngineHttpClient(@Value("${rules.baseUrl:...}"))
+      - RULES_BASEURL=http://rules:8081
+    depends_on:
+      - rules
+
+  rules:
+    build: ./rules
+    container_name: smart-links-rules
+    ports:
+      - "8081:8081"
+    environment:
+      # ResolveService(@Value("${rules.fallbackUrl:...}"))
+      - RULES_FALLBACKURL=http://landing:8082/landing/default
+
+  landing:
+    build: ./landing
+    container_name: smart-links-landing
+    ports:
+      - "8082:8082"
